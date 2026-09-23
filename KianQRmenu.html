@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kian Coffee & Snacks | QR Menu</title>
+    
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind CSS Engine -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: '#F5EFE3',
+                        gold: '#B8892D',
+                        olive: '#4F5B2A',
+                        sand: '#D8C9A8',
+                        darkText: '#2C2416',
+                        cardBg: '#FFFFFF',
+                        mutedText: '#726A59'
+                    },
+                    fontFamily: {
+                        heading: ['Outfit', 'sans-serif'],
+                        body: ['Plus Jakarta Sans', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'glass': '0 8px 32px 0 rgba(79, 91, 42, 0.12)',
+                        'card': '0 4px 18px -2px rgba(44, 36, 22, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.03)',
+                        'pill': '0 10px 28px -4px rgba(79, 91, 42, 0.4)',
+                        'dock': '0 12px 32px 0 rgba(44, 36, 22, 0.18)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --bg-cream: #F5EFE3;
+            --brand-gold: #B8892D;
+            --brand-olive: #4F5B2A;
+            --brand-sand: #D8C9A8;
+            --dark-text: #2C2416;
+        }
+
+        body {
+            background-color: var(--bg-cream);
+            color: var(--dark-text);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Apple iOS Glassmorphism Navigation Dock */
+        .glass-dock {
+            background: rgba(245, 239, 227, 0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(216, 201, 168, 0.7);
+        }
+
+        /* Compact Floating Order Pill */
+        .glass-pill {
+            background: rgba(79, 91, 42, 0.95);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(184, 137, 45, 0.5);
+        }
+
+        /* Backdrop overlay */
+        .glass-overlay {
+            background: rgba(44, 36, 22, 0.55);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+
+        /* Hide Scrollbars */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Touch interaction feedback */
+        .active-press {
+            transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.15s ease;
+        }
+        .active-press:active {
+            transform: scale(0.94);
+        }
+
+        /* Badge pulse animation */
+        @keyframes subtlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.12); }
+        }
+        .animate-subtle-pulse {
+            animation: subtlePulse 2s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-40 antialiased selection:bg-gold selection:text-white">
+
+    <header class="pt-7 pb-3 px-4 text-center max-w-2xl mx-auto">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-olive via-olive to-gold text-cream shadow-md mb-2.5 border-2 border-sand/80 active-press">
+            <i class="fa-solid fa-mug-saucer text-2xl text-gold"></i>
+        </div>
+        
+        <h1 class="font-heading text-2xl sm:text-3xl font-extrabold text-olive tracking-tight">
+            Kian <span class="text-gold">Coffee&Snacks</span>
+        </h1>
+        <p class="text-mutedText text-xs font-semibold tracking-wide mt-0.5">Fresh Bites & Handcrafted Beverages</p>
+    </header>
+
+    <div class="hidden lg:flex justify-center max-w-xl mx-auto my-3 px-4">
+        <nav id="categoryContainer" class="flex gap-2 p-1.5 bg-sand/30 rounded-2xl border border-sand/60">
+            <!-- Dynamically populated categories -->
+        </nav>
+    </div>
+
+    <main class="max-w-4xl mx-auto px-4 pt-2">
+        <div class="flex justify-between items-center mb-3.5 px-1">
+            <h2 id="sectionTitle" class="font-heading text-lg sm:text-xl font-bold text-olive flex items-center gap-2">
+                All Items
+            </h2>
+            <span id="itemCountBadge" class="text-[11px] font-bold bg-sand/40 text-olive px-3 py-1 rounded-full border border-sand/60">
+                0 items
+            </span>
+        </div>
+
+        <!-- Menu Cards Grid -->
+        <div id="menuGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            <!-- Cards rendered dynamically via JS -->
+        </div>
+    </main>
+
+    <div id="floatingOrderWrapper" class="fixed bottom-20 inset-x-0 z-40 flex justify-center px-4 pointer-events-none transition-all duration-300">
+        <button 
+            onclick="toggleCartDrawer(true)" 
+            class="pointer-events-auto glass-pill text-cream rounded-full px-4 py-2.5 shadow-pill active-press flex items-center gap-3 border border-gold/40 hover:bg-olive transition group"
+            aria-label="Open My Order Drawer"
+        >
+            <div class="relative flex items-center justify-center">
+                <i class="fa-solid fa-basket-shopping text-gold text-base"></i>
+                <span id="cartBadgeCount" class="absolute -top-2 -right-2 bg-gold text-white text-[10px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center border border-olive animate-subtle-pulse">
+                    0
+                </span>
+            </div>
+
+            <div class="text-left flex items-center gap-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-sand">My Order</span>
+                <span class="text-sand/60 text-xs">•</span>
+                <span id="cartBadgePrice" class="font-heading text-sm font-extrabold text-white tracking-wide">0</span>
+            </div>
+
+            <i class="fa-solid fa-chevron-right text-xs text-gold/80 group-hover:translate-x-0.5 transition-transform"></i>
+        </button>
+    </div>
+
+    <div class="fixed bottom-3 inset-x-3 max-w-sm mx-auto z-40">
+        <nav class="glass-dock rounded-3xl p-1.5 shadow-dock flex items-center justify-between gap-1">
+            
+            <!-- Left Icon: Snacks -->
+            <button 
+                onclick="filterCategory('snacks')" 
+                id="dock-btn-snacks"
+                class="dock-tab flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition active-press text-mutedText hover:text-olive"
+                aria-label="Filter Snacks"
+            >
+                <div class="dock-icon-box w-9 h-9 rounded-xl flex items-center justify-center transition mb-0.5 text-base">
+                    <i class="fa-solid fa-cookie-bite"></i>
+                </div>
+                <span class="text-[11px] font-bold tracking-tight">Snacks</span>
+            </button>
+
+            <!-- Middle Icon: Drinks -->
+            <button 
+                onclick="filterCategory('drinks')" 
+                id="dock-btn-drinks"
+                class="dock-tab flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition active-press text-mutedText hover:text-olive"
+                aria-label="Filter Drinks"
+            >
+                <div class="dock-icon-box w-9 h-9 rounded-xl flex items-center justify-center transition mb-0.5 text-base">
+                    <i class="fa-solid fa-glass-water"></i>
+                </div>
+                <span class="text-[11px] font-bold tracking-tight">Drinks</span>
+            </button>
+
+            <!-- Right Icon: Coffee -->
+            <button 
+                onclick="filterCategory('coffee')" 
+                id="dock-btn-coffee"
+                class="dock-tab flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition active-press text-mutedText hover:text-olive"
+                aria-label="Filter Coffee"
+            >
+                <div class="dock-icon-box w-9 h-9 rounded-xl flex items-center justify-center transition mb-0.5 text-base">
+                    <i class="fa-solid fa-mug-hot"></i>
+                </div>
+                <span class="text-[11px] font-bold tracking-tight">Coffee</span>
+            </button>
+
+        </nav>
+    </div>
+
+    <div id="cartModal" class="fixed inset-0 z-50 hidden flex justify-end glass-overlay">
+        <div class="bg-cardBg w-full max-w-md h-full shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-250">
+            
+            <!-- Drawer Header -->
+            <div class="p-4 bg-olive text-cream flex justify-between items-center shadow-md shrink-0 border-b border-gold/20">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-gold/20 text-gold flex items-center justify-center">
+                        <i class="fa-solid fa-basket-shopping text-base"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-heading font-bold text-lg text-white leading-tight">My Order</h2>
+                        <p class="text-[11px] text-sand font-medium">Kian Coffee & Snacks</p>
+                    </div>
+                </div>
+                <button onclick="toggleCartDrawer(false)" class="w-8 h-8 bg-cream/10 hover:bg-cream/20 text-white rounded-full flex items-center justify-center active-press">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Cart Items Container -->
+            <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-4 space-y-3">
+                <!-- Dynamically populated via JavaScript -->
+            </div>
+
+            <!-- Summary Footer -->
+            <div class="p-4 bg-cream/70 border-t border-sand/60 space-y-3 shrink-0">
+                <div class="space-y-1.5 text-xs text-mutedText">
+                    <div class="flex justify-between">
+                        <span>Items Subtotal</span>
+                        <span id="cartSubtotalText" class="font-bold text-darkText">0</span>
+                    </div>
+                    <div class="flex justify-between text-base font-heading font-extrabold text-olive pt-2 border-t border-sand/50">
+                        <span>Total Amount</span>
+                        <span id="cartTotalText" class="text-gold text-xl">0</span>
+                    </div>
+                </div>
+
+                <button 
+                    onclick="submitOrderToKitchen()" 
+                    id="submitOrderBtn"
+                    class="w-full bg-olive hover:bg-emerald-900 text-cream font-heading font-extrabold text-base py-3.5 rounded-2xl shadow-md active-press flex items-center justify-center gap-2 transition"
+                >
+                    <i class="fa-solid fa-paper-plane text-gold"></i>
+                    <span>Send Order</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="receiptModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 glass-overlay">
+        <div class="bg-cardBg w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center border border-sand text-darkText animate-in zoom-in-95 duration-200">
+            <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+
+            <h3 class="font-heading text-2xl font-extrabold text-olive">Order Sent!</h3>
+            <p class="text-xs text-mutedText mt-1">Your order has been sent to the bar.</p>
+
+            <div class="bg-cream/60 my-4 p-3 rounded-2xl border border-sand/60 text-left space-y-1 text-xs">
+                <div class="flex justify-between font-bold text-olive border-b border-sand/40 pb-1.5">
+                    <span>Order No: <strong id="receiptOrderId" class="text-gold">#KIAN-101</strong></span>
+                </div>
+                <div class="pt-1 text-mutedText flex justify-between">
+                    <span>Est. Time:</span>
+                    <strong class="text-darkText font-bold">~8-12 mins</strong>
+                </div>
+                <div class="flex justify-between text-mutedText">
+                    <span>Total Amount:</span>
+                    <strong id="receiptTotalAmount" class="text-olive font-extrabold text-sm">0</strong>
+                </div>
+            </div>
+
+            <div id="receiptItemList" class="text-left max-h-32 overflow-y-auto space-y-1 text-xs text-mutedText mb-4 pr-1">
+                <!-- Receipt list dynamically populated -->
+            </div>
+
+            <button onclick="closeReceiptModal()" class="w-full bg-gold hover:bg-amber-600 text-white font-heading font-bold py-3 rounded-2xl shadow-md active-press transition">
+                Done / Back to Menu
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const MENU_DATA = [
+            // SNACKS
+            {
+                id: 's1',
+                name: 'Butter Croissant',
+                category: 'snacks',
+                price: 100,
+                description: 'Baked fresh daily with golden French Normandy butter layers.',
+                image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&auto=format&fit=crop&q=80',
+                tag: 'Fresh Daily'
+            },
+            {
+                id: 's2',
+                name: 'Briosh Chocolate',
+                category: 'snacks',
+                price: 120,
+                description: 'Soft warm brioche filled with creamy hazelnut chocolate.',
+                image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80',
+                tag: 'Popular'
+            },
+            {
+                id: 's3',
+                name: 'Ham & Cheese Toast',
+                category: 'snacks',
+                price: 150,
+                description: 'Toasted sliced bread with melted gouda cheese and smoked ham.',
+                image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600&auto=format&fit=crop&q=80',
+                tag: 'Classic'
+            },
+            {
+                id: 's4',
+                name: 'Club Sandwich',
+                category: 'snacks',
+                price: 350,
+                description: 'Triple-decker toasted sandwich with chicken, bacon, cheese, & mayo.',
+                image: 'https://images.unsplash.com/photo-1567234669003-dce7a7a88821?w=600&auto=format&fit=crop&q=80',
+                tag: 'Chef Choice'
+            },
+            {
+                id: 's5',
+                name: 'Pistachio Cannoli',
+                category: 'snacks',
+                price: 140,
+                description: 'Crispy pastry shell filled with sweet ricotta and crushed pistachios.',
+                image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&auto=format&fit=crop&q=80',
+                tag: 'Sweet'
+            },
+            {
+                id: 's6',
+                name: 'Cheesecake Slice',
+                category: 'snacks',
+                price: 250,
+                description: 'Rich and creamy New York style cheesecake with strawberry glaze.',
+                image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=600&auto=format&fit=crop&q=80',
+                tag: 'Sweet'
+            },
+
+            // DRINKS
+            {
+                id: 'd1',
+                name: 'Fresh Orange Juice',
+                category: 'drinks',
+                price: 200,
+                description: '100% freshly squeezed Valencia oranges served chilled.',
+                image: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?w=600&auto=format&fit=crop&q=80',
+                tag: '100% Pure'
+            },
+            {
+                id: 'd2',
+                name: 'Mineral Water 0.5L',
+                category: 'drinks',
+                price: 50,
+                description: 'Crisp natural mountain spring water.',
+                image: 'https://images.unsplash.com/photo-1560023907-5f339617ea30?w=600&auto=format&fit=crop&q=80',
+                tag: 'Chilled'
+            },
+            {
+                id: 'd3',
+                name: 'Red Bull',
+                category: 'drinks',
+                price: 220,
+                description: 'Energy drink served ice cold.',
+                image: 'https://images.unsplash.com/photo-1622543925917-763c34d1a86e?w=600&auto=format&fit=crop&q=80',
+                tag: 'Energy'
+            },
+            {
+                id: 'd4',
+                name: 'Iced Peach Tea',
+                category: 'drinks',
+                price: 160,
+                description: 'Brewed black tea infused with real peach nectar.',
+                image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600&auto=format&fit=crop&q=80',
+                tag: 'Refreshing'
+            },
+            {
+                id: 'd5',
+                name: 'Homemade Lemonade',
+                category: 'drinks',
+                price: 150,
+                description: 'Hand-pressed fresh lemons, mint leaves, and organic agave.',
+                image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&auto=format&fit=crop&q=80',
+                tag: 'Refreshing'
+            },
+            {
+                id: 'd6',
+                name: 'Mango Passion Smoothie',
+                category: 'drinks',
+                price: 250,
+                description: 'Blended tropical mango, passion fruit, and coconut water.',
+                image: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=600&auto=format&fit=crop&q=80',
+                tag: 'Top Pick'
+            },
+
+            // COFFEE
+            {
+                id: 'c1',
+                name: 'Espresso',
+                category: 'coffee',
+                price: 80,
+                description: 'Rich single shot of premium roasted Arabica beans.',
+                image: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=600&auto=format&fit=crop&q=80',
+                tag: 'Classic'
+            },
+            {
+                id: 'c2',
+                name: 'Macchiato',
+                category: 'coffee',
+                price: 90,
+                description: 'Single espresso topped with a touch of steamed milk foam.',
+                image: 'https://images.unsplash.com/photo-1485808191679-5f86510681a2?w=600&auto=format&fit=crop&q=80',
+                tag: 'Popular'
+            },
+            {
+                id: 'c3',
+                name: 'Freddo Espresso',
+                category: 'coffee',
+                price: 120,
+                description: 'Double shot espresso shaken over ice to perfection.',
+                image: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=600&auto=format&fit=crop&q=80',
+                tag: 'Bestseller'
+            },
+            {
+                id: 'c4',
+                name: 'Cappuccino',
+                category: 'coffee',
+                price: 130,
+                description: 'Espresso, hot milk, and rich micro-foam dusted with cocoa.',
+                image: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=600&auto=format&fit=crop&q=80',
+                tag: 'Classic'
+            },
+            {
+                id: 'c5',
+                name: 'Iced Caramel Latte',
+                category: 'coffee',
+                price: 150,
+                description: 'Double espresso with chilled milk and caramel syrup over ice.',
+                image: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=600&auto=format&fit=crop&q=80',
+                tag: 'Sweet'
+            },
+            {
+                id: 'c6',
+                name: 'Cold Brew Coffee',
+                category: 'coffee',
+                price: 160,
+                description: 'Steeped for 20 hours for ultra-smooth cocoa notes & low acidity.',
+                image: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=600&auto=format&fit=crop&q=80',
+                tag: 'Smooth'
+            }
+        ];
+
+        /* CATEGORIES CONFIGURATION */
+        const CATEGORIES = [
+            { id: 'all', label: 'All Items', icon: 'fa-list-ul' },
+            { id: 'snacks', label: 'Snacks', icon: 'fa-cookie-bite' },
+            { id: 'drinks', label: 'Drinks', icon: 'fa-glass-water' },
+            { id: 'coffee', label: 'Coffee', icon: 'fa-mug-hot' }
+        ];
+
+        let state = {
+            activeCategory: 'all',
+            cart: {} // Mapping: itemId -> quantity
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderDesktopCategories();
+            renderMenu();
+            updateDockTabs();
+            updateCartBadges();
+        });
+
+        /* Render Desktop Category Bar */
+        function renderDesktopCategories() {
+            const container = document.getElementById('categoryContainer');
+            if (!container) return;
+
+            container.innerHTML = CATEGORIES.map(cat => {
+                const isActive = state.activeCategory === cat.id;
+                return `
+                    <button 
+                        onclick="filterCategory('${cat.id}')"
+                        class="flex items-center gap-2 px-4 py-2 rounded-xl font-heading font-bold text-xs sm:text-sm transition active-press ${
+                            isActive 
+                            ? 'bg-olive text-cream shadow-xs' 
+                            : 'bg-cardBg text-olive hover:bg-sand/30'
+                        }"
+                    >
+                        <i class="fa-solid ${cat.icon} ${isActive ? 'text-gold' : 'text-olive/70'}"></i>
+                        <span>${cat.label}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function renderMenu() {
+            const menuGrid = document.getElementById('menuGrid');
+            const sectionTitle = document.getElementById('sectionTitle');
+            const itemCountBadge = document.getElementById('itemCountBadge');
+
+            let filtered = MENU_DATA.filter(item => {
+                return state.activeCategory === 'all' || item.category === state.activeCategory;
+            });
+
+            const catObj = CATEGORIES.find(c => c.id === state.activeCategory);
+            sectionTitle.innerHTML = `<i class="fa-solid ${catObj ? catObj.icon : 'fa-utensils'} text-gold mr-1.5"></i> ${catObj ? catObj.label : 'Menu'}`;
+            itemCountBadge.textContent = `${filtered.length} item${filtered.length !== 1 ? 's' : ''}`;
+
+            menuGrid.innerHTML = filtered.map(item => {
+                const qty = state.cart[item.id] || 0;
+
+                return `
+                    <article class="bg-cardBg rounded-3xl p-3 border border-sand/50 shadow-card hover:shadow-md transition-all flex flex-col justify-between">
+                        <div>
+                            <!-- Item Image -->
+                            <div class="relative h-36 sm:h-40 w-full rounded-2xl overflow-hidden bg-sand/20 mb-2.5">
+                                <img 
+                                    src="${item.image}" 
+                                    alt="${item.name}" 
+                                    loading="lazy"
+                                    onerror="this.src='https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500&auto=format&fit=crop&q=60'"
+                                    class="w-full h-full object-cover"
+                                >
+                                <span class="absolute top-2 left-2 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded-full border border-white/20 backdrop-blur-xs">
+                                    ${item.tag}
+                                </span>
+                            </div>
+
+                            <!-- Item Details -->
+                            <h3 class="font-heading font-bold text-base text-olive leading-snug">
+                                ${item.name}
+                            </h3>
+                            <p class="text-mutedText text-[11px] mt-1 leading-relaxed">
+                                ${item.description}
+                            </p>
+                        </div>
+
+                        <!-- Card Bottom Price & Action -->
+                        <div class="mt-3 pt-2.5 border-t border-sand/30 flex items-center justify-between">
+                            <div>
+                                <span class="text-[9px] text-mutedText uppercase font-extrabold tracking-wider block">Price</span>
+                                <span class="font-heading font-extrabold text-base text-olive">${item.price}</span>
+                            </div>
+
+                            ${qty > 0 ? `
+                                <div class="flex items-center gap-1.5 bg-olive text-cream rounded-2xl px-2 py-1 shadow-xs">
+                                    <button onclick="updateQuantity('${item.id}', -1)" class="w-7 h-7 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center font-bold active-press text-xs">
+                                        <i class="fa-solid fa-minus"></i>
+                                    </button>
+                                    <span class="font-heading font-extrabold text-xs px-1 text-gold min-w-[16px] text-center">${qty}</span>
+                                    <button onclick="updateQuantity('${item.id}', 1)" class="w-7 h-7 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center font-bold active-press text-xs">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                </div>
+                            ` : `
+                                <button 
+                                    onclick="addItemDirectly('${item.id}')" 
+                                    class="bg-cream hover:bg-gold hover:text-white text-olive font-heading font-bold text-xs px-3.5 py-2 rounded-2xl border border-sand transition active-press flex items-center gap-1 shadow-xs"
+                                >
+                                    <i class="fa-solid fa-plus text-gold"></i>
+                                    <span>Add</span>
+                                </button>
+                            `}
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        /* Filter Category Handler */
+        function filterCategory(catId) {
+            state.activeCategory = catId;
+            renderDesktopCategories();
+            renderMenu();
+            updateDockTabs();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /* Highlight Active Bottom Dock Tab */
+        function updateDockTabs() {
+            ['snacks', 'drinks', 'coffee'].forEach(cat => {
+                const btn = document.getElementById(`dock-btn-${cat}`);
+                if (!btn) return;
+
+                const iconBox = btn.querySelector('.dock-icon-box');
+                const isActive = state.activeCategory === cat;
+
+                if (isActive) {
+                    btn.classList.add('text-olive');
+                    btn.classList.remove('text-mutedText');
+                    iconBox.className = 'dock-icon-box w-9 h-9 rounded-xl flex items-center justify-center transition mb-0.5 text-base bg-gold text-white shadow-xs';
+                } else {
+                    btn.classList.remove('text-olive');
+                    btn.classList.add('text-mutedText');
+                    iconBox.className = 'dock-icon-box w-9 h-9 rounded-xl flex items-center justify-center transition mb-0.5 text-base bg-sand/30 text-olive/80';
+                }
+            });
+        }
+
+        function addItemDirectly(itemId) {
+            if (!state.cart[itemId]) {
+                state.cart[itemId] = 1;
+            } else {
+                state.cart[itemId] += 1;
+            }
+            updateCartBadges();
+            renderMenu();
+            renderCartItems();
+        }
+
+        function updateQuantity(itemId, delta) {
+            if (state.cart[itemId]) {
+                state.cart[itemId] += delta;
+                if (state.cart[itemId] <= 0) {
+                    delete state.cart[itemId];
+                }
+            }
+            updateCartBadges();
+            renderMenu();
+            renderCartItems();
+        }
+
+        function removeItemCompletely(itemId) {
+            delete state.cart[itemId];
+            updateCartBadges();
+            renderMenu();
+            renderCartItems();
+        }
+
+        /* Recalculate Totals (Strict numeric values only) */
+        function updateCartBadges() {
+            let totalCount = 0;
+            let total = 0;
+
+            Object.keys(state.cart).forEach(id => {
+                const qty = state.cart[id];
+                const item = MENU_DATA.find(i => i.id === id);
+                if (item) {
+                    totalCount += qty;
+                    total += item.price * qty;
+                }
+            });
+
+            document.getElementById('cartBadgeCount').textContent = totalCount;
+            document.getElementById('cartBadgePrice').textContent = total;
+
+            document.getElementById('cartSubtotalText').textContent = total;
+            document.getElementById('cartTotalText').textContent = total;
+
+            const submitBtn = document.getElementById('submitOrderBtn');
+
+            if (totalCount === 0) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        /* Toggle Cart Drawer */
+        function toggleCartDrawer(show) {
+            const modal = document.getElementById('cartModal');
+            if (show) {
+                renderCartItems();
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function renderCartItems() {
+            const container = document.getElementById('cartItemsContainer');
+            const itemIds = Object.keys(state.cart);
+
+            if (itemIds.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-14 px-4">
+                        <i class="fa-solid fa-basket-shopping text-4xl text-sand mb-2.5"></i>
+                        <p class="font-heading font-bold text-olive text-base">Your order is empty</p>
+                        <p class="text-xs text-mutedText mt-1">Tap + Add on any snack or beverage to get started!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = itemIds.map(id => {
+                const qty = state.cart[id];
+                const item = MENU_DATA.find(i => i.id === id);
+                if (!item) return '';
+
+                const itemTotal = item.price * qty;
+
+                return `
+                    <div class="bg-cream/40 rounded-2xl p-2.5 border border-sand/60 flex items-center gap-3">
+                        <img src="${item.image}" alt="" class="w-14 h-14 rounded-xl object-cover shrink-0 border border-sand">
+                        
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-start">
+                                <h4 class="font-heading font-bold text-xs sm:text-sm text-olive truncate">${item.name}</h4>
+                                <button onclick="removeItemCompletely('${item.id}')" class="text-mutedText hover:text-red-600 ml-1 p-1 active-press" aria-label="Remove item">
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                </button>
+                            </div>
+
+                            <p class="text-[10px] text-mutedText font-semibold mt-0.5">Price: ${item.price}</p>
+
+                            <div class="flex justify-between items-center mt-1.5">
+                                <span class="font-heading font-extrabold text-sm text-olive">${itemTotal}</span>
+
+                                <div class="flex items-center gap-1.5 bg-cardBg border border-sand/70 rounded-xl px-1.5 py-0.5 shadow-2xs">
+                                    <button onclick="updateQuantity('${item.id}', -1)" class="w-5 h-5 rounded-lg text-olive hover:bg-sand/30 flex items-center justify-center font-bold active-press text-[10px]">
+                                        <i class="fa-solid fa-minus"></i>
+                                    </button>
+                                    <span class="font-heading font-extrabold text-xs text-olive w-4 text-center">${qty}</span>
+                                    <button onclick="updateQuantity('${item.id}', 1)" class="w-5 h-5 rounded-lg text-olive hover:bg-sand/30 flex items-center justify-center font-bold active-press text-[10px]">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function submitOrderToKitchen() {
+            const itemIds = Object.keys(state.cart);
+            if (itemIds.length === 0) return;
+
+            let total = 0;
+            itemIds.forEach(id => {
+                const item = MENU_DATA.find(i => i.id === id);
+                if (item) total += item.price * state.cart[id];
+            });
+
+            const orderId = `#KIAN-${Math.floor(100 + Math.random() * 900)}`;
+
+            document.getElementById('receiptOrderId').textContent = orderId;
+            document.getElementById('receiptTotalAmount').textContent = total;
+
+            document.getElementById('receiptItemList').innerHTML = itemIds.map(id => {
+                const item = MENU_DATA.find(i => i.id === id);
+                const qty = state.cart[id];
+                return `
+                    <div class="flex justify-between py-0.5 border-b border-sand/20">
+                        <span>${qty}x ${item.name}</span>
+                        <span class="font-bold text-darkText">${item.price * qty}</span>
+                    </div>
+                `;
+            }).join('');
+
+            toggleCartDrawer(false);
+            document.getElementById('receiptModal').classList.remove('hidden');
+
+            state.cart = {};
+            updateCartBadges();
+            renderMenu();
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('receiptModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
